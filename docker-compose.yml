@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  my_network:
+
+services:
+  db:
+    image: postgres:latest
+    container_name: Task_2_13244
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: Moamen_52_13244
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "13244:13244"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/Moamen_52_13244
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SERVER_PORT: 13244
+    networks:
+      - my_network
